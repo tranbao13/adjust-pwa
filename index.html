@@ -1,0 +1,38 @@
+<!doctype html>
+<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.adjust.com/adjust-5.8.0.min.js"></script>
+</head><body>
+<h3 id="mode"></h3>
+<button onclick="track('REG_TOKEN')">Register</button>
+<button onclick="track('FTD_TOKEN', 500)">FTD</button>
+<button onclick="track('DEP_TOKEN', 200)">Deposit</button>
+<pre id="log"></pre>
+<script>
+  const log = m => document.getElementById('log').textContent += m + '\n';
+  const standalone = matchMedia('(display-mode: standalone)').matches;
+  document.getElementById('mode').textContent = standalone ? 'Running as PWA' : 'Running in browser tab';
+
+  Adjust.initSdk({
+    appToken: 'am2dmpc578jk',
+    environment: 'sandbox',
+    logLevel: 'verbose',
+    attributionCallback: (e, a) => log('ATTR: ' + JSON.stringify(a))
+  });
+  Adjust.waitForWebUUID().then(id => log('web_uuid: ' + id));
+
+  // In production, set this only after login
+  Adjust.addGlobalCallbackParameters([{ key: 'megaperya_user_id', value: 'test_user_001' }]);
+
+  function track(token, revenue) {
+    const p = { eventToken: token };
+    if (revenue) { p.revenue = revenue; p.currency = 'PHP'; }
+    Adjust.trackEvent(p);
+    log('event sent: ' + token);
+  }
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  window.addEventListener('appinstalled', () => log('PWA installed'));
+</script>
+</body></html>
