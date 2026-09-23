@@ -23,8 +23,16 @@
   });
 
   // Runs on every page load / app open
-  Adjust.waitForWebUUID().then(id => log('web_uuid: ' + id));
-  Adjust.waitForAttribution().then(a => log('ATTR (current): ' + JSON.stringify(a)));
+  log('build v3'); // proves you're seeing the new version
+
+Adjust.waitForWebUUID().then(id => {
+  log('web_uuid: ' + id);
+  // SDK has started by now, so its saved attribution should be readable
+  log('ATTR (stored): ' + JSON.stringify(Adjust.getAttribution()));
+});
+
+// Still useful: logs if a fresh attribution arrives from Adjust's backend
+Adjust.waitForAttribution().then(a => log('ATTR (from backend): ' + JSON.stringify(a)));
 
   // In production, set this only after login
   Adjust.addGlobalCallbackParameters([{ key: 'megaperya_user_id', value: 'test_user_001' }]);
